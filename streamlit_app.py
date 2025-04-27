@@ -26,7 +26,8 @@ def generate_dialogue(words: list[str]) -> str:
     prompt = (
     "Create a short and funny conversation between a playful man named Tom and a cute, sociable girl named Lisa. "
     "Both are witty and often come up with clever remarks."
-    "Sometimes, Lisa shows off her beauty and her big breast, teasing people with playful, naughty jokes."
+    "Sometimes Lisa kisses Tom even though they are not dating"
+    "Sometimes, Lisa shows off her beauty and big breasts, teasing people with playful, naughty jokes."
     "The conversation must naturally include these three words exactly once each: "
     f"{', '.join(words)}. "
     "Either Tom or Lisa should start the conversation randomly. "
