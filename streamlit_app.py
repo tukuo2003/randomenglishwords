@@ -44,8 +44,8 @@ def save_words(words: list[str]) -> None:
 def generate_dialogue(words: list[str]) -> str:
     prompt = (
         "Create a short and funny conversation between a playful man named Tom and a cute, sociable girl named Lisa. "
-        "Both are witty and often come up with clever remarks. "
-        "Sometimes, Lisa shows off her beauty and big breasts, teasing people with playful, naughty jokes. "
+        "Both are friends who work at the same company. Both are witty and often come up with clever remarks. "
+        "Sometimes, Lisa complains or teases people with playful, naughty jokes. "
         "The conversation must naturally include these word(s) exactly once each: "
         f"{', '.join(words)}. "
         "Either Tom or Lisa should start the conversation randomly. "
@@ -75,8 +75,8 @@ st.set_page_config(page_title="Word Fun App", page_icon="🗨️", layout="cente
 
 st.title("Word Learning App 🗨️")
 
-# CSV の保存場所をデバッグ表示 (ユーザー確認用)
-st.caption(f"CSV path: {CSV_PATH}")
+# CSV の保存場所をデバッグ表示
+st.caption(f"CSV path: {CSV_PATH} (exists={CSV_PATH.exists()})")
 
 # --- Tabs ---
 
@@ -137,6 +137,20 @@ with tab_wordlist:
     if not words:
         st.info("まだ単語が登録されていません。Dialogue Creation タブで追加してください。")
     else:
+        # --- Download button (new) ---
+        with st.expander("⬇️ Download / Backup current CSV"):
+            if CSV_PATH.exists():
+                with open(CSV_PATH, "rb") as f:
+                    st.download_button(
+                        label="💾 Download current wordlist.csv",
+                        data=f,
+                        file_name="wordlist.csv",
+                        mime="text/csv",
+                    )
+            else:
+                st.info("CSV ファイルがまだ存在しません。単語を登録すると生成されます。")
+
+        # --- Word list display ---
         for idx, w in enumerate(words):
             col1, col2 = st.columns([4, 1])
             col1.write(f"- {w}")
