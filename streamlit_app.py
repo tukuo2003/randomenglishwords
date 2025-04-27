@@ -24,13 +24,18 @@ def save_words(words: list[str]) -> None:
 def generate_dialogue(words: list[str]) -> str:
     """3 語を使って Tom & Lisa の会話を生成し、英語→日本語訳を返す"""
     prompt = (
-        "Create a short and funny conversation between a chubby, playful man named Tom and a cute girl named Lisa. "
-        "The conversation must naturally include these three words exactly once each: "
-        f"{', '.join(words)}. "
-        "Make it friendly, humorous, 4‑6 lines long. "
-        "Conversation may be humorous with a sarcastic or ironic tone about politics, economics, gender relationships, or international relations if you can with the limit of the fact that you need to include the 3 words."
-        "First output the English conversation, then provide a fluent Japanese translation right below it, then provide the meanings of the 3 words, clearly separated."
+    "Create a short and funny conversation between a chubby, playful man named Tom and a cute, sociable girl named Lisa. "
+    "Tom is good at soccer and studying but is bad at cleaning his room and is often late. "
+    "Lisa is not particularly skilled, but she is cheerful, friendly, and adorable. "
+    "The conversation must naturally include these three words exactly once each: "
+    f"{', '.join(words)}. "
+    "Either Tom or Lisa should start the conversation randomly. "
+    "Make it friendly and humorous, 4‑6 lines long. "
+    "You may add a slightly sarcastic or ironic tone about politics, economics, gender relationships, or international relations, if it fits naturally with the dialogue and the 3 words. "
+    "First output the English conversation, then provide a fluent Japanese translation right below it, and finally give a simple definition for each of the 3 words. "
+    "Clearly separate the English conversation, Japanese translation, and the word meanings."
     )
+
 
     try:
         res = CLIENT.chat.completions.create(
