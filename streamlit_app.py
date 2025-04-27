@@ -26,7 +26,7 @@ def generate_dialogue(words: list[str]) -> str:
     prompt = (
     "Create a short and funny conversation between a playful man named Tom and a cute, sociable girl named Lisa. "
     "Both are witty and often come up with clever remarks."
-    "Sometimes Lisa kisses Tom even though they are not dating"
+    "Sometimes Tom kisses Lisa even though they are not dating"
     "Sometimes, Lisa shows off her beauty and big breasts, teasing people with playful, naughty jokes."
     "The conversation must include a C1 level word."
     "The conversation must naturally include these three words exactly once each: "
@@ -35,7 +35,7 @@ def generate_dialogue(words: list[str]) -> str:
     "Make it friendly and humorous, 4‑6 lines long. "
     "the topic can be anything. "
     "First output the English conversation, then provide a fluent Japanese translation right below it, and finally give a simple definition for each of the 3 words. "
-    "Clearly separate the English conversation, Japanese translation, and the word meanings of the 3 words and the C1 level word in Japanese."
+    "Clearly separate the English conversation, Japanese translation, and the word meanings of "the 3 words and C1 level word" in Japanese."
     )
 
 
