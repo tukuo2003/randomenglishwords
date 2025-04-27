@@ -11,6 +11,7 @@ CSV_PATH = "wordlist.csv"  # 単語を保存するローカル CSV
 # ========== Helpers ==========
 
 def load_words() -> list[str]:
+    """CSV から単語リストを読み込む"""
     if os.path.exists(CSV_PATH):
         df = pd.read_csv(CSV_PATH, header=None, names=["word"])
         return df["word"].dropna().tolist()
@@ -18,34 +19,33 @@ def load_words() -> list[str]:
 
 
 def save_words(words: list[str]) -> None:
+    """単語リストを CSV に保存する"""
     pd.DataFrame(words, columns=["word"]).to_csv(CSV_PATH, index=False, header=False)
 
 
 def generate_dialogue(words: list[str]) -> str:
-    """3 語を使って Tom & Lisa の会話を生成し、英語→日本語訳を返す"""
+    """選ばれた単語を必ず 1 回ずつ含む Tom & Lisa の会話を生成し、英語→日本語訳を返す"""
     prompt = (
-    "Create a short and funny conversation between a playful man named Tom and a cute, sociable girl named Lisa. "
-    "Both are witty and often come up with clever remarks."
-    "Sometimes, Lisa shows off her beauty and big breasts, teasing people with playful, naughty jokes."
-    "The conversation must include a C1 level word."
-    "The conversation must naturally include these three words exactly once each: "
-    f"{', '.join(words)}. "
-    "Either Tom or Lisa should start the conversation randomly. "
-    "Make it friendly and humorous, 4‑6 lines long. "
-    "the topic can be anything. "
-    "First output the English conversation, then provide a fluent Japanese translation right below it, and finally give a simple definition for each of the 3 words. "
-    "Clearly separate the English conversation, Japanese translation, and the word meanings of the 3 words and C1 level word in Japanese."
+        "Create a short and funny conversation between a playful man named Tom and a cute, sociable girl named Lisa. "
+        "Both are friends working at the same company. Both are witty and often come up with clever remarks. "
+        "Sometimes, Lisa complains or teases people with playful, naughty jokes. "
+        "The conversation must naturally include these word(s) exactly once each: "
+        f"{', '.join(words)}. "
+        "Either Tom or Lisa should start the conversation randomly. "
+        "Make it friendly and humorous, 4‑6 lines long. The topic can be anything. "
+        "First output the English conversation, then provide a fluent Japanese translation right below it, "
+        "and finally give a simple definition for every listed word in Japanese. "
+        "Clearly separate the English conversation, Japanese translation, and word meanings."
     )
-
 
     try:
         res = CLIENT.chat.completions.create(
-            model="gpt-4o",  # モデル変更
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a creative writer specializing in funny dialogues."},
                 {"role": "user", "content": prompt},
             ],
-            max_tokens=500,
+            max_tokens=600,
             temperature=0.7,
         )
         return res.choices[0].message.content.strip()
@@ -54,12 +54,12 @@ def generate_dialogue(words: list[str]) -> str:
         return "会話の生成に失敗しました。"
 
 # ========== UI ==========
-
 st.set_page_config(page_title="Word Fun App", page_icon="🗨️", layout="centered")
 
 st.title("Word Learning App 🗨️")
 
 # --- Tabs ---
+
 tab_dialogue, tab_wordlist = st.tabs(["💬 Dialogue Creation", "📚 Word List"])
 
 # ---------------- Dialogue Creation Tab -----------------
@@ -81,21 +81,32 @@ with tab_dialogue:
     words_total = load_words()
     st.caption(f"**Registered words:** {', '.join(words_total) if words_total else 'None yet.'}")
 
-    # --- Select and generate ---
-    if len(words_total) < 3:
-        st.warning("まず 3 つ以上単語を登録してください。")
+    if not words_total:
+        st.warning("まず単語を登録してください。")
     else:
-        if "selected_words" not in st.session_state:
-            st.session_state.selected_words = []
+        mode = st.radio("Select mode", ["🎲 Random 3 words", "📝 Pick my own"], horizontal=True, key="select_mode")
 
-        if st.button("🎲 Select 3 Random Words"):
-            st.session_state.selected_words = random.sample(words_total, 3)
+        # ---------- Mode 1: Random 3 words ----------
+        if mode == "🎲 Random 3 words":
+            if len(words_total) < 3:
+                st.warning("3 語以上登録されていません。")
+            else:
+                if st.button("Select & Generate", key="random_generate"):
+                    selected = random.sample(words_total, 3)
+                    st.write("### Selected Words", ", ".join(selected))
+                    result = generate_dialogue(selected)
+                    st.markdown(result)
 
-        if st.session_state.selected_words:
-            st.write("### Selected Words", ", ".join(st.session_state.selected_words))
-            if st.button("🚀 Generate Dialogue"):
-                result = generate_dialogue(st.session_state.selected_words)
-                st.markdown(result)
+        # ---------- Mode 2: User picks any number ----------
+        else:
+            picked = st.multiselect("Choose as many words as you like (min 1)", words_total, key="picked_words")
+            if st.button("Generate with selected words", key="custom_generate"):
+                if not picked:
+                    st.warning("少なくとも 1 語選択してください。")
+                else:
+                    st.write("### Selected Words", ", ".join(picked))
+                    result = generate_dialogue(picked)
+                    st.markdown(result)
 
 # ---------------- Word List Tab -----------------
 with tab_wordlist:
