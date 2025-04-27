@@ -17,7 +17,7 @@ def generate_dialogue(words):
             f"Create a short and funny conversation between a chubby, playful man named Tom and a cute girl named Lisa. "
             f"The conversation must naturally include these three words: {', '.join(words)}. "
             f"The conversation is often taken place with Lisa naked. "
-            f"Make it friendly and humorous, about 3-5 lines. "
+            f"Make it friendly and humorous, about 4-6 lines. "
             f"First output the English conversation, then provide a fluent Japanese translation right below it, clearly separated."
         )
         response = client.chat.completions.create(
