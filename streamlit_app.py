@@ -4,88 +4,113 @@ import os
 import random
 from openai import OpenAI
 
-# OpenAI APIクライアント設定
-client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+# ========== Config ==========
+CLIENT = OpenAI(api_key=st.secrets["openai"]["api_key"])
+CSV_PATH = "wordlist.csv"  # 単語を保存するローカル CSV
 
-# CSVファイルのパス
-CSV_PATH = "wordlist.csv"
+# ========== Helpers ==========
 
-# 文と和訳を生成する関数
-def generate_dialogue(words):
-    try:
-        prompt = (
-            f"Create a short and funny conversation between a chubby, playful man named Tom and a cute girl named Lisa. "
-            f"The conversation must naturally include these three words: {', '.join(words)}. "
-            f"The conversation is often taken place with Lisa naked. "
-            f"Make it friendly and humorous, about 4-6 lines. "
-            f"First output the English conversation, then provide a fluent Japanese translation right below it, clearly separated."
-        )
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "You are a creative writer specializing in funny dialogues."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=500,
-            temperature=0.7
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        st.error(f"\u4f1a\u8a71\u751f\u6210\u30a8\u30e9\u30fc: {e}")
-        return "\u4f1a\u8a71\u306e\u751f\u6210\u306b\u5931\u6557\u3057\u307e\u3057\u305f\u3002"
-
-# 単語保存関数
-def save_words(words):
-    df = pd.DataFrame(words, columns=["word"])
-    df.to_csv(CSV_PATH, index=False, header=False)
-
-# 単語読み込み関数
-def load_words():
+def load_words() -> list[str]:
     if os.path.exists(CSV_PATH):
         df = pd.read_csv(CSV_PATH, header=None, names=["word"])
         return df["word"].dropna().tolist()
     return []
 
-# Streamlit UI
-st.title("Word Learning App")
 
-st.header("Dialogue Creation")
+def save_words(words: list[str]) -> None:
+    pd.DataFrame(words, columns=["word"]).to_csv(CSV_PATH, index=False, header=False)
 
-words = load_words()
 
-# 単語登録
-st.subheader("Register a New Word")
-new_word = st.text_input("Enter a new English word")
-if st.button("Register Word"):
-    if new_word.strip():
-        words.append(new_word.strip())
-        save_words(words)
-        st.success(f"'{new_word}' \u3092\u767b\u9332\u3057\u307e\u3057\u305f！")
-        st.experimental_rerun()
+def generate_dialogue(words: list[str]) -> str:
+    """3 語を使って Tom & Lisa の会話を生成し、英語→日本語訳を返す"""
+    prompt = (
+        "Create a short and funny conversation between a chubby, playful man named Tom and a cute girl named Lisa. "
+        "The conversation must naturally include these three words exactly once each: "
+        f"{', '.join(words)}. "
+        "Make it friendly, humorous, 4‑6 lines long. "
+        "First output the English conversation, then provide a fluent Japanese translation right below it, clearly separated."
+    )
 
-# 単語リスト表示
-total_words = load_words()
-if total_words:
-    st.subheader("Current Registered Words")
-    st.write(", ".join(total_words))
-else:
-    st.info("\u307e\u3060\u5358\u8a9e\u304c\u767b\u9332\u3055\u308c\u3066\u3044\u307e\u305b\u3093\u3002")
+    try:
+        res = CLIENT.chat.completions.create(
+            model="gpt-4o",  # モデル変更
+            messages=[
+                {"role": "system", "content": "You are a creative writer specializing in funny dialogues."},
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=500,
+            temperature=0.7,
+        )
+        return res.choices[0].message.content.strip()
+    except Exception as e:
+        st.error(f"会話生成エラー: {e}")
+        return "会話の生成に失敗しました。"
 
-# 単語選択して会話生成
-if len(total_words) >= 3:
-    if "selected_words" not in st.session_state:
-        st.session_state.selected_words = []
+# ========== UI ==========
 
-    if st.button("Select 3 Random Words"):
-        st.session_state.selected_words = random.sample(total_words, 3)
+st.set_page_config(page_title="Word Fun App", page_icon="🗨️", layout="centered")
 
-    if st.session_state.selected_words:
-        st.subheader("Selected Words")
-        st.write(", ".join(st.session_state.selected_words))
+st.title("Word Learning App 🗨️")
 
-        if st.button("Generate Dialogue"):
-            dialogue = generate_dialogue(st.session_state.selected_words)
-            st.subheader("Generated Dialogue")
-            st.write(dialogue)
-else:
-    st.warning("3\u3064\u4ee5\u4e0a\u306e\u5358\u8a9e\u3092\u767b\u9332\u3057\u3066\u304f\u3060\u3055\u3044\u3002")
+# --- Tabs ---
+tab_dialogue, tab_wordlist = st.tabs(["💬 Dialogue Creation", "📚 Word List"])
+
+# ---------------- Dialogue Creation Tab -----------------
+with tab_dialogue:
+    st.subheader("Generate a Dialogue 🗣️")
+
+    # --- Register new word inline ---
+    with st.expander("➕  Add / Register a new word"):
+        new_word = st.text_input("Enter a new English word", key="new_word_input")
+        if st.button("Register Word", key="register_word"):
+            if new_word.strip():
+                words_all = load_words()
+                words_all.append(new_word.strip())
+                save_words(words_all)
+                st.success(f"'{new_word}' を登録しました！")
+                st.rerun()
+
+    # --- Current words (quick view) ---
+    words_total = load_words()
+    st.caption(f"**Registered words:** {', '.join(words_total) if words_total else 'None yet.'}")
+
+    # --- Select and generate ---
+    if len(words_total) < 3:
+        st.warning("まず 3 つ以上単語を登録してください。")
+    else:
+        if "selected_words" not in st.session_state:
+            st.session_state.selected_words = []
+
+        if st.button("🎲 Select 3 Random Words"):
+            st.session_state.selected_words = random.sample(words_total, 3)
+
+        if st.session_state.selected_words:
+            st.write("### Selected Words", ", ".join(st.session_state.selected_words))
+            if st.button("🚀 Generate Dialogue"):
+                result = generate_dialogue(st.session_state.selected_words)
+                st.markdown(result)
+
+# ---------------- Word List Tab -----------------
+with tab_wordlist:
+    st.subheader("Manage Your Word List 📚")
+
+    words = load_words()
+
+    if not words:
+        st.info("まだ単語が登録されていません。Dialogue Creation タブで追加してください。")
+    else:
+        for idx, w in enumerate(words):
+            col1, col2 = st.columns([4, 1])
+            col1.write(f"- {w}")
+            if col2.button("🗑️", key=f"del_{idx}"):
+                words.pop(idx)
+                save_words(words)
+                st.rerun()
+
+        st.divider()
+        new_word2 = st.text_input("Add another word", key="new_word_in_list")
+        if st.button("Add", key="add_in_list") and new_word2.strip():
+            words.append(new_word2.strip())
+            save_words(words)
+            st.success(f"'{new_word2}' を追加しました！")
+            st.rerun()
