@@ -35,7 +35,7 @@ def generate_dialogue(words: list[str]) -> str:
     "Make it friendly and humorous, 4‑6 lines long. "
     "the topic can be anything. "
     "First output the English conversation, then provide a fluent Japanese translation right below it, and finally give a simple definition for each of the 3 words. "
-    "Clearly separate the English conversation, Japanese translation, and the word meanings in Japanese."
+    "Clearly separate the English conversation, Japanese translation, and the word meanings of the 3 words and the C1 level word in Japanese."
     )
 
 
