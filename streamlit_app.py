@@ -29,7 +29,7 @@ def generate_dialogue(words: list[str]) -> str:
         f"{', '.join(words)}. "
         "Make it friendly, humorous, 4‑6 lines long. "
         "Conversation may be humorous with a sarcastic or ironic tone about politics, economics, gender relationships, or international relations if you can with the limit of the fact that you need to include the 3 words."
-        "First output the English conversation, then provide a fluent Japanese translation right below it, clearly separated."
+        "First output the English conversation, then provide a fluent Japanese translation right below it, then provide the meanings of the 3 words, clearly separated."
     )
 
     try:
