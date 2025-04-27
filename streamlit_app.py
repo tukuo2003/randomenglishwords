@@ -28,6 +28,7 @@ def generate_dialogue(words: list[str]) -> str:
     "Both are witty and often come up with clever remarks."
     "Sometimes Lisa kisses Tom even though they are not dating"
     "Sometimes, Lisa shows off her beauty and big breasts, teasing people with playful, naughty jokes."
+    "The conversation must include a C1 level word."
     "The conversation must naturally include these three words exactly once each: "
     f"{', '.join(words)}. "
     "Either Tom or Lisa should start the conversation randomly. "
