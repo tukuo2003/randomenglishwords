@@ -25,8 +25,7 @@ def generate_dialogue(words: list[str]) -> str:
     """3 語を使って Tom & Lisa の会話を生成し、英語→日本語訳を返す"""
     prompt = (
     "Create a short and funny conversation between a chubby, playful man named Tom and a cute, sociable girl named Lisa. "
-    "Tom is good at soccer and studying but is bad at cleaning his room and is often late. "
-    "Lisa is not particularly skilled, but she is cheerful, friendly, and adorable. "
+    "Sometimes, Lisa shows off her beauty and her big curves, teasing people with playful, naughty jokes."
     "The conversation must naturally include these three words exactly once each: "
     f"{', '.join(words)}. "
     "Either Tom or Lisa should start the conversation randomly. "
