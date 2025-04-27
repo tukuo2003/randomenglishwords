@@ -26,7 +26,7 @@ def save_words(words: list[str]) -> None:
 def generate_dialogue(words: list[str]) -> str:
     """選ばれた単語を必ず 1 回ずつ含む Tom & Lisa の会話を生成し、英語→日本語訳を返す"""
     prompt = (
-        "Create a short and funny conversation between a playful man named Tom and a cute, sociable girl named Lisa. "
+        "Create a short and funny conversation between a playful man named Tom and a cute, sociable girl named Nana. "
         "Both are friends working at the same company. Both are witty and often come up with clever remarks. "
         "Sometimes, Lisa complains or teases people with playful, naughty jokes. "
         "The conversation must naturally include these word(s) exactly once each: "
