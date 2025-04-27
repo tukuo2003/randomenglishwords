@@ -2,37 +2,54 @@ import streamlit as st
 import pandas as pd
 import os
 import random
+import shutil
+import datetime
+from pathlib import Path
 from openai import OpenAI
 
 # ========== Config ==========
+BASE_DIR = Path(__file__).resolve().parent           # スクリプトと同じディレクトリ
+CSV_PATH = BASE_DIR / "wordlist.csv"                # 絶対パスで管理
 CLIENT = OpenAI(api_key=st.secrets["openai"]["api_key"])
-CSV_PATH = "wordlist.csv"  # 単語を保存するローカル CSV
 
 # ========== Helpers ==========
 
+def backup_csv(path: Path) -> None:
+    """上書き前にバックアップコピーを残す"""
+    if path.exists():
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        shutil.copy(path, path.with_suffix(f".bak.{ts}"))
+
+
 def load_words() -> list[str]:
-    """CSV から単語リストを読み込む"""
-    if os.path.exists(CSV_PATH):
-        df = pd.read_csv(CSV_PATH, header=None, names=["word"])
-        return df["word"].dropna().tolist()
+    """CSV から単語リストを読み込む。存在しなければ空リスト"""
+    if CSV_PATH.exists():
+        try:
+            df = pd.read_csv(CSV_PATH, header=None, names=["word"])
+            return df["word"].dropna().tolist()
+        except Exception as e:
+            st.error(f"CSV 読み込み失敗: {e}")
     return []
 
 
 def save_words(words: list[str]) -> None:
-    """単語リストを CSV に保存する"""
+    """単語リストを CSV に保存 (空リストは保存しない)"""
+    if not words:
+        st.warning("空リストは保存しませんでした。")
+        return
+    backup_csv(CSV_PATH)
     pd.DataFrame(words, columns=["word"]).to_csv(CSV_PATH, index=False, header=False)
 
 
 def generate_dialogue(words: list[str]) -> str:
-    """選ばれた単語を必ず 1 回ずつ含む Tom & Lisa の会話を生成し、英語→日本語訳を返す"""
     prompt = (
-        "Create a short and funny conversation between a playful man named Tom and a cute, sociable girl named Nana. "
-        "Both are friends working at the same company. Both are witty and often come up with clever remarks. "
-        "Sometimes, Lisa complains or teases people with playful, naughty jokes. "
+        "Create a short and funny conversation between a playful man named Tom and a cute, sociable girl named Lisa. "
+        "Both are witty and often come up with clever remarks. "
+        "Sometimes, Lisa shows off her beauty and big breasts, teasing people with playful, naughty jokes. "
         "The conversation must naturally include these word(s) exactly once each: "
         f"{', '.join(words)}. "
         "Either Tom or Lisa should start the conversation randomly. "
-        "Make it friendly and humorous, 4‑6 lines long. The topic can be anything. "
+        "Make it friendly and humorous, 4-6 lines long. The topic can be anything. "
         "First output the English conversation, then provide a fluent Japanese translation right below it, "
         "and finally give a simple definition for every listed word in Japanese. "
         "Clearly separate the English conversation, Japanese translation, and word meanings."
@@ -57,6 +74,9 @@ def generate_dialogue(words: list[str]) -> str:
 st.set_page_config(page_title="Word Fun App", page_icon="🗨️", layout="centered")
 
 st.title("Word Learning App 🗨️")
+
+# CSV の保存場所をデバッグ表示 (ユーザー確認用)
+st.caption(f"CSV path: {CSV_PATH}")
 
 # --- Tabs ---
 
