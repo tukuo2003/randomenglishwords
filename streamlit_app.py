@@ -11,7 +11,7 @@ client = OpenAI(api_key=st.secrets["openai"]["api_key"])
 CSV_PATH = "wordlist.csv"
 
 # 文と和訳を生成する関数
-def generate_comedy_dialogue(words):
+def generate_dialogue(words):
     try:
         prompt = (
             f"Create a short and funny conversation between a chubby, playful man named Tom and a cute girl named Lisa. "
@@ -83,7 +83,7 @@ if len(total_words) >= 3:
         st.write(", ".join(st.session_state.selected_words))
 
         if st.button("Generate Dialogue"):
-            dialogue = generate_comedy_dialogue(st.session_state.selected_words)
+            dialogue = generate_dialogue(st.session_state.selected_words)
             st.subheader("Generated Dialogue")
             st.write(dialogue)
 else:
