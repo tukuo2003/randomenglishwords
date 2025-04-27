@@ -20,7 +20,7 @@ def generate_comedy_dialogue(words):
             f"First output the English conversation, then provide a fluent Japanese translation right below it, clearly separated."
         )
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a creative writer specializing in funny dialogues."},
                 {"role": "user", "content": prompt}
@@ -30,8 +30,8 @@ def generate_comedy_dialogue(words):
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        st.error(f"会話生成エラー: {e}")
-        return "会話の生成に失敗しました。"
+        st.error(f"\u4f1a\u8a71\u751f\u6210\u30a8\u30e9\u30fc: {e}")
+        return "\u4f1a\u8a71\u306e\u751f\u6210\u306b\u5931\u6557\u3057\u307e\u3057\u305f\u3002"
 
 # 単語保存関数
 def save_words(words):
@@ -48,68 +48,43 @@ def load_words():
 # Streamlit UI
 st.title("Word Learning App")
 
-# モード選択
-mode = st.sidebar.selectbox("Select Mode", ["Word Registration", "Comedy Dialogue Creation", "Word List"])
+st.header("Dialogue Creation")
 
-# Word Registrationモード
-if mode == "Word Registration":
-    st.header("Word Registration Mode")
-    word_input = st.text_input("Enter an English word")
-    if st.button("Register Word"):
-        if word_input.strip():
-            words = load_words()
-            words.append(word_input.strip())
-            save_words(words)
-            st.success(f"'{word_input}' を登録しました！")
+words = load_words()
 
-# Comedy Dialogue Creationモード
-elif mode == "Comedy Dialogue Creation":
-    st.header("Comedy Dialogue Creation Mode")
-    words = load_words()
+# 単語登録
+st.subheader("Register a New Word")
+new_word = st.text_input("Enter a new English word")
+if st.button("Register Word"):
+    if new_word.strip():
+        words.append(new_word.strip())
+        save_words(words)
+        st.success(f"'{new_word}' \u3092\u767b\u9332\u3057\u307e\u3057\u305f！")
+        st.experimental_rerun()
 
-    if len(words) < 3:
-        st.warning("単語を3つ以上登録してください。")
-    else:
-        if "selected_words" not in st.session_state:
-            st.session_state.selected_words = []
+# 単語リスト表示
+total_words = load_words()
+if total_words:
+    st.subheader("Current Registered Words")
+    st.write(", ".join(total_words))
+else:
+    st.info("\u307e\u3060\u5358\u8a9e\u304c\u767b\u9332\u3055\u308c\u3066\u3044\u307e\u305b\u3093\u3002")
 
-        if st.button("Select 3 Words"):
-            st.session_state.selected_words = random.sample(words, 3)
+# 単語選択して会話生成
+if len(total_words) >= 3:
+    if "selected_words" not in st.session_state:
+        st.session_state.selected_words = []
 
-        if st.session_state.selected_words:
-            st.subheader("Selected Words")
-            st.write(", ".join(st.session_state.selected_words))
+    if st.button("Select 3 Random Words"):
+        st.session_state.selected_words = random.sample(total_words, 3)
 
-            if st.button("Generate Comedy Dialogue"):
-                dialogue = generate_comedy_dialogue(st.session_state.selected_words)
-                st.subheader("Generated Dialogue")
-                st.write(dialogue)
+    if st.session_state.selected_words:
+        st.subheader("Selected Words")
+        st.write(", ".join(st.session_state.selected_words))
 
-# Word Listモード
-elif mode == "Word List":
-    st.header("Word List Mode")
-    words = load_words()
-
-    if not words:
-        st.info("まだ単語が登録されていません。")
-    else:
-        st.subheader("現在登録されている単語")
-
-        for idx, word in enumerate(words):
-            col1, col2 = st.columns([4, 1])
-            with col1:
-                st.write(f"- {word}")
-            with col2:
-                if st.button("Delete", key=f"delete_{idx}"):
-                    words.pop(idx)
-                    save_words(words)
-                    st.rerun()
-
-    st.subheader("新しい単語を追加")
-    new_word = st.text_input("New Word", key="new_word")
-    if st.button("Add Word"):
-        if new_word.strip():
-            words.append(new_word.strip())
-            save_words(words)
-            st.success(f"'{new_word}' を追加しました！")
-            st.rerun()
+        if st.button("Generate Dialogue"):
+            dialogue = generate_comedy_dialogue(st.session_state.selected_words)
+            st.subheader("Generated Dialogue")
+            st.write(dialogue)
+else:
+    st.warning("3\u3064\u4ee5\u4e0a\u306e\u5358\u8a9e\u3092\u767b\u9332\u3057\u3066\u304f\u3060\u3055\u3044\u3002")
