@@ -44,9 +44,9 @@ def generate_dialogue(words: list[str]) -> str:
     starter = random.choice(["Tom", "Lisa"])
     prompt = (
         "Create a short and funny conversation between a playful man named Tom and a cute, sociable girl named Lisa. "
-        "Both are friends who work at the same company. Tom are witty and often come up with clever remarks. "
+        # "Both are friends who work at the same company. Tom are witty and often come up with clever remarks. "
         "Tom is an process engineer at an EPC engineering company."
-        "Sometimes, Lisa complains or teases people at work with playful, naughty jokes. "
+        "Sometimes, Lisa complains or teases people or Tom's boss at work with playful, naughty jokes. "
         "The conversation must naturally include these word(s) exactly once each: "
         f"{', '.join(words)}. "
         f"The conversation MUST start with {starter}: "
