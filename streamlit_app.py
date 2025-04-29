@@ -13,11 +13,11 @@ CLIENT = OpenAI(api_key=st.secrets["openai"]["api_key"])
 
 # ========== Helpers ==========
 
-# def backup_csv(path: Path) -> None:
-#     """CSV を上書きする前に日時付きバックアップを作成"""
-#     if path.exists():
-#         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-#         shutil.copy(path, path.with_suffix(f".bak.{ts}"))
+def backup_csv(path: Path) -> None:
+    """CSV を上書きする前に日時付きバックアップを作成"""
+    if path.exists():
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        shutil.copy(path, path.with_suffix(f".bak.{ts}"))
 
 
 def load_words() -> list[str]:
