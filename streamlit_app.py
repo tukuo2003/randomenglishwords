@@ -13,21 +13,21 @@ CLIENT = OpenAI(api_key=st.secrets["openai"]["api_key"])
 
 # ========== Helpers ==========
 
-def backup_csv(path: Path) -> None:
-    """CSV を上書きする前に日時付きバックアップを作成"""
-    if path.exists():
-        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        shutil.copy(path, path.with_suffix(f".bak.{ts}"))
+# def backup_csv(path: Path) -> None:
+#     """CSV を上書きする前に日時付きバックアップを作成"""
+#     if path.exists():
+#         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+#         shutil.copy(path, path.with_suffix(f".bak.{ts}"))
 
 
-def load_words() -> list[str]:
-    """CSV から単語リストを読み込む (無い場合は空リスト)"""
-    if CSV_PATH.exists():
-        try:
-            return pd.read_csv(CSV_PATH, header=None)[0].dropna().tolist()
-        except Exception as e:
-            st.error(f"CSV 読み込み失敗: {e}")
-    return []
+# def load_words() -> list[str]:
+#     """CSV から単語リストを読み込む (無い場合は空リスト)"""
+#     if CSV_PATH.exists():
+#         try:
+#             return pd.read_csv(CSV_PATH, header=None)[0].dropna().tolist()
+#         except Exception as e:
+#             st.error(f"CSV 読み込み失敗: {e}")
+#     return []
 
 
 def save_words(words: list[str]) -> None:
