@@ -44,10 +44,11 @@ def generate_dialogue(base_words: list[str]) -> str:
     prompt = (
         "Create a short and funny conversation between a playful man named Tom and "
         "a cute, sociable girl named Lisa who work at the same EPC engineering company. "
-        "Tom is a process engineer; Lisa loves teasing Tom's boss with playful, naughty jokes.\n\n"
+        "Lisa loves talking aout gossip or teasing Tom's boss with playful, naughty jokes.\n\n"
         f"The conversation MUST start with {starter}: \n"
         "• include EACH of these word(s) exactly once: " + ", ".join(words) + "\n"
         "• length: 4–6 lines, friendly & humorous\n\n"
+        "Do not talk about coffee."
         "After the English conversation, add:\n"
         "1) a fluent Japanese translation\n"
         "2) simple Japanese definitions of every listed word (including the C1/C2 word)\n"
